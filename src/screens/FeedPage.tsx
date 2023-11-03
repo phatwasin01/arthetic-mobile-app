@@ -10,6 +10,7 @@ import AdBanner from "../components/carousel/Carousel";
 
 import { GetUserFollowingFeed } from "../gql/document";
 import { useQuery } from "@apollo/client";
+
 import { deleteValueFromSecureStoreAndLogout } from "../utils/auth";
 import { StackNavigationProp } from "@react-navigation/stack";
 
@@ -30,9 +31,13 @@ const HeaderMain = () => (
 const PostFeed = ({
   caption,
   username,
+  isUserLiked,
+  isUserRePosted,
 }: {
   caption: string;
   username: string;
+  isUserLiked: boolean;
+  isUserRePosted: boolean;
 }) => (
   <View style={styles.postOverall}>
     <View style={styles.postHeader}>
@@ -54,9 +59,22 @@ const PostFeed = ({
     />
     <View style={styles.postCalltoAction}>
       <FontAwesome name="comment" size={18} color="#B1B1B1" />
-      <FontAwesome name="retweet" size={18} color="#B1B1B1" />
-      <FontAwesome name="heart" size={18} color="#B1B1B1" />
-      <FontAwesome name="bookmark" size={18} color="#B1B1B1" />
+      <TouchableOpacity onPress={() => {}}>
+        <FontAwesome
+          name="retweet"
+          size={18}
+          color={isUserRePosted ? "blue" : "#B1B1B1"}
+        />
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => {}}>
+        <FontAwesome
+          name="heart"
+          size={18}
+          color={isUserLiked ? "red" : "#B1B1B1"}
+        />
+      </TouchableOpacity>
+
       <FontAwesome name="share" size={18} color="#B1B1B1" />
     </View>
   </View>
@@ -67,7 +85,13 @@ export default function HomePage({
 }: {
   navigation: StackNavigationProp<any>;
 }) {
-  const { data, loading, error } = useQuery(GetUserFollowingFeed);
+  const {
+    data,
+    loading,
+    error,
+    refetch: refetchFeed,
+  } = useQuery(GetUserFollowingFeed);
+  const handleLike = () => {};
   if (loading) return <Text>Loading...</Text>;
   // TODO: Handle error properly
   if (error) {
@@ -85,6 +109,8 @@ export default function HomePage({
               key={index}
               caption={post?.content || ""}
               username={post?.author?.username || ""}
+              isUserLiked={!!post?.isUserLiked}
+              isUserRePosted={!!post?.isUserReposted}
             />
           ))}
         </ScrollView>
