@@ -26,7 +26,7 @@ export const SBItem: React.FC<Props> = (props) => {
       }}
     >
       <Animated.View testID={testID} style={{ flex: 1 }} {...animatedViewProps}>
-        {isPretty ? (
+        {true ? (
           <SBImageItem
             style={style}
             index={index}

@@ -9,10 +9,8 @@ import Animated, {
 import Carousel from "react-native-reanimated-carousel";
 
 import { SBItem } from "./SBItem";
-import SButton from "./SButton";
-import { ElementsText, window } from "./constant";
+
 import { Dimensions } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 const PAGE_WIDTH = Dimensions.get("window").width;
 const colors = [

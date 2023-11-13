@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import type { StyleProp, ViewStyle, ImageURISource } from "react-native";
 import { StyleSheet, View, ActivityIndicator, Image, Text } from "react-native";
 
@@ -8,34 +8,21 @@ interface Props {
   showIndex?: boolean;
 }
 
-export const SBImageItem: React.FC<Props> = ({
-  style,
-  index: _index,
-  showIndex = true,
-}) => {
+const imageSources: { [key: number]: ImageURISource } = {
+  1: require("../../../assets/event1.jpeg"),
+  2: require("../../../assets/event2.jpeg"),
+  3: require("../../../assets/event3.jpeg"),
+  4: require("../../../assets/event4.jpeg"),
+  5: require("../../../assets/event5.jpeg"),
+  6: require("../../../assets/event6.jpeg"),
+};
+export const SBImageItem: React.FC<Props> = ({ style, index: _index }) => {
   const index = (_index || 0) + 1;
-  const source = React.useRef<ImageURISource>({
-    uri: `https://picsum.photos/id/${index}/400/300`,
-  }).current;
-
   return (
     <View style={[styles.container, style]}>
-      <ActivityIndicator size="small" />
-      <Image key={index} style={styles.image} source={source} />
-      <Text
-        style={{
-          position: "absolute",
-          color: "white",
-          fontSize: 40,
-          backgroundColor: "#333333",
-          borderRadius: 5,
-          overflow: "hidden",
-          paddingHorizontal: 10,
-          paddingTop: 2,
-        }}
-      >
-        {showIndex ? index : ""}
-      </Text>
+      <Suspense fallback={<ActivityIndicator size="small" />}>
+        <Image key={index} style={styles.image} source={imageSources[index]} />
+      </Suspense>
     </View>
   );
 };
@@ -50,10 +37,8 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   image: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    bottom: 0,
-    right: 0,
+    width: "100%",
+    height: "100%",
+    resizeMode: "stretch", // or 'contain', depending on your preference
   },
 });

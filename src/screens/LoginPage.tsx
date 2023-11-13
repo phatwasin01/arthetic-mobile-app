@@ -14,7 +14,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { Login } from "../gql/document";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native";
 import {
   saveToSecureStore,
   getValueFromSecureStore,
@@ -84,6 +84,7 @@ export default function LoginPage({
                   onChangeText={setUsername}
                   style={styles.textinput}
                   placeholder="Enter username here"
+                  autoCapitalize="none"
                 />
               </View>
               <View style={styles.textinputcontainer}>

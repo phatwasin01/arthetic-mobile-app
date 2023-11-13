@@ -1,81 +1,53 @@
-import React from "react";
-import { StyleSheet, Text, View, TouchableOpacity, Image } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import React, { useState } from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Image,
+  RefreshControl,
+  Alert,
+} from "react-native";
+import { SafeAreaView } from "react-native";
 import { Avatar } from "@rneui/base";
 import Octicons from "@expo/vector-icons/Octicons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { ScrollView } from "react-native-gesture-handler";
 import AdBanner from "../components/carousel/Carousel";
+import Loading from "./Loading";
 
-import { GetUserFollowingFeed } from "../gql/document";
-import { useQuery } from "@apollo/client";
+import {
+  GetUserFollowingFeed,
+  LikePost,
+  RepostPost,
+  UnLikePost,
+} from "../gql/document";
+import { useMutation, useQuery } from "@apollo/client";
 
 import { deleteValueFromSecureStoreAndLogout } from "../utils/auth";
 import { StackNavigationProp } from "@react-navigation/stack";
-
+import { FromNow, TimestampToDate } from "../utils/post";
 const userTokenKey = "userToken";
-const HeaderMain = () => (
+
+const HeaderMain = ({
+  navigation,
+}: {
+  navigation: StackNavigationProp<any>;
+}) => (
   <View style={styles.headerContainer}>
     <View style={styles.headerLeft}>
       <Image style={styles.logo} source={require("../../assets/logo.png")} />
       <Text style={styles.headerText}>Arthetic</Text>
     </View>
     <View style={styles.headerRight}>
-      <Octicons name="paintbrush" size={24} color="black" />
-      <AntDesign name="message1" size={24} color="black" />
-    </View>
-  </View>
-);
-
-const PostFeed = ({
-  caption,
-  username,
-  isUserLiked,
-  isUserRePosted,
-}: {
-  caption: string;
-  username: string;
-  isUserLiked: boolean;
-  isUserRePosted: boolean;
-}) => (
-  <View style={styles.postOverall}>
-    <View style={styles.postHeader}>
-      <Avatar
-        rounded
-        size={37}
-        source={{
-          uri: "https://s3.amazonaws.com/uifaces/faces/twitter/ladylexy/128.jpg",
-        }}
+      <AntDesign
+        name="pluscircleo"
+        size={28}
+        color="black"
+        onPress={() => navigation.navigate("CreatePost")}
       />
-      <View style={styles.postCaption}>
-        <Text style={styles.boldText}>{username}</Text>
-        <Text>{caption}</Text>
-      </View>
-    </View>
-    <Image
-      source={require("../../assets/PostImage.jpeg")}
-      style={{ width: 280, height: 280, borderRadius: 10, marginTop: 10 }}
-    />
-    <View style={styles.postCalltoAction}>
-      <FontAwesome name="comment" size={18} color="#B1B1B1" />
-      <TouchableOpacity onPress={() => {}}>
-        <FontAwesome
-          name="retweet"
-          size={18}
-          color={isUserRePosted ? "blue" : "#B1B1B1"}
-        />
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => {}}>
-        <FontAwesome
-          name="heart"
-          size={18}
-          color={isUserLiked ? "red" : "#B1B1B1"}
-        />
-      </TouchableOpacity>
-
-      <FontAwesome name="share" size={18} color="#B1B1B1" />
+      {/* <AntDesign name="message1" size={24} color="black" /> */}
     </View>
   </View>
 );
@@ -90,32 +62,175 @@ export default function HomePage({
     loading,
     error,
     refetch: refetchFeed,
-  } = useQuery(GetUserFollowingFeed);
-  const handleLike = () => {};
-  if (loading) return <Text>Loading...</Text>;
+  } = useQuery(GetUserFollowingFeed, {
+    fetchPolicy: "network-only",
+  });
+  const [likePost, { loading: likePostLoading }] = useMutation(LikePost);
+  const [unlikePost, { loading: unlikePostLoading }] = useMutation(UnLikePost);
+  const [repostPost, { loading: repostPostLoading }] = useMutation(RepostPost);
+  const [refreshing, setRefreshing] = useState(false);
+  console.log(data);
+  const onRefresh = async () => {
+    setRefreshing(true);
+
+    await refetchFeed();
+
+    setRefreshing(false);
+  };
+  const handleLike = async (
+    postId: string | undefined,
+    isUserLiked: boolean | undefined | null
+  ) => {
+    if (!postId || likePostLoading || unlikePostLoading) return;
+    if (isUserLiked === true) {
+      await unlikePost({
+        variables: { postId },
+      });
+    } else if (isUserLiked === false) {
+      await likePost({
+        variables: { postId },
+      });
+    } else {
+      await refetchFeed();
+      return;
+    }
+    await refetchFeed();
+  };
+  const handleRepost = async (
+    postId: string | undefined,
+    isUserReposted: boolean | undefined | null
+  ) => {
+    if (!postId || repostPostLoading || isUserReposted) return;
+    Alert.alert("Repost", "Are you sure you want to repost this post?", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Yes",
+        onPress: async () => {
+          if (isUserReposted === false && postId) {
+            await repostPost({
+              variables: { postId },
+            });
+          }
+          await refetchFeed();
+        },
+      },
+    ]);
+  };
+  const navigateToPost = (postId: string | undefined) => {
+    if (!postId) return;
+    navigation.navigate("PostPage", { postId });
+  };
+  if (loading) return <Loading />;
   // TODO: Handle error properly
   if (error) {
     deleteValueFromSecureStoreAndLogout(userTokenKey, navigation);
   }
   if (!data) return <Text>No Data</Text>;
   return (
-    <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
-      <SafeAreaView style={styles.container}>
-        <HeaderMain />
-        <ScrollView style={{ width: "100%" }}>
+    <SafeAreaView style={{ backgroundColor: "white", flex: 1 }}>
+      <HeaderMain navigation={navigation} />
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        <View style={{ minHeight: "100%" }}>
           <AdBanner />
-          {data?.userProfile?.followingFeed?.map((post, index) => (
-            <PostFeed
+          {data.userProfile?.followingFeed?.map((post, index) => (
+            <TouchableOpacity
+              style={styles.postOverall}
               key={index}
-              caption={post?.content || ""}
-              username={post?.author?.username || ""}
-              isUserLiked={!!post?.isUserLiked}
-              isUserRePosted={!!post?.isUserReposted}
-            />
+              activeOpacity={1}
+              onPress={() => navigateToPost(post?.id)}
+            >
+              {post?.postType === "Repost" && (
+                <View style={styles.repostHeader}>
+                  <FontAwesome name="retweet" size={18} color="#B1B1B1" />
+                  <Text style={{ color: "#B1B1B1", fontWeight: "600" }}>
+                    {post.repostUser?.username} reposted
+                  </Text>
+                </View>
+              )}
+              <View style={styles.postHeader}>
+                <Avatar
+                  rounded
+                  size={37}
+                  source={{
+                    uri: post?.author?.imageUrl || undefined,
+                  }}
+                  onPress={() => console.log("Works!")}
+                />
+                <View style={styles.postCaption}>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      gap: 10,
+                      alignItems: "center",
+                    }}
+                  >
+                    <Text style={styles.boldText}>
+                      {post?.author?.username}
+                    </Text>
+                    <Text style={styles.timestamp}>
+                      {FromNow(post?.timestamp || "")}
+                    </Text>
+                  </View>
+                  <Text>{post?.content}</Text>
+                </View>
+              </View>
+              {post?.imageUrl && (
+                <Image
+                  source={{
+                    uri: post?.imageUrl || undefined,
+                  }}
+                  style={{
+                    width: 280,
+                    height: 280,
+                    borderRadius: 10,
+                    marginTop: 10,
+                  }}
+                />
+              )}
+              <View style={styles.postCalltoAction}>
+                <FontAwesome name="comment" size={18} color="#B1B1B1" />
+                <TouchableOpacity
+                  onPress={async () => {
+                    await handleRepost(post?.id, post?.isUserReposted);
+                  }}
+                  style={{ flexDirection: "row", alignItems: "center" }}
+                >
+                  <FontAwesome
+                    name="retweet"
+                    size={18}
+                    color={post?.isUserReposted ? "#1DC560" : "#B1B1B1"}
+                  />
+                  <Text style={styles.actionCounts}>{post?.repostCount}</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={async () =>
+                    await handleLike(post?.id, post?.isUserLiked)
+                  }
+                  style={{ flexDirection: "row", alignItems: "center" }}
+                >
+                  <FontAwesome
+                    name="heart"
+                    size={18}
+                    color={post?.isUserLiked ? "#FF6464" : "#B1B1B1"}
+                  />
+                  <Text style={styles.actionCounts}>{post?.likeCount}</Text>
+                </TouchableOpacity>
+
+                <FontAwesome name="share" size={18} color="#B1B1B1" />
+              </View>
+            </TouchableOpacity>
           ))}
-        </ScrollView>
-      </SafeAreaView>
-    </View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -203,6 +318,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 15,
     marginRight: 11,
+    // borderWidth: 1,
   },
   postHeader: {
     display: "flex",
@@ -229,7 +345,9 @@ const styles = StyleSheet.create({
     width: 29.5,
   },
   headerText: {
-    fontSize: 16,
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#2D2D2D",
   },
   icon: {
     height: 24,
@@ -247,5 +365,27 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 20,
+  },
+  timestamp: {
+    fontSize: 14,
+    color: "#B1B1B1",
+    fontWeight: "400",
+  },
+  actionCounts: {
+    fontSize: 14,
+    color: "#B1B1B1",
+    fontWeight: "500",
+    marginLeft: 5,
+  },
+  repostHeader: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    paddingHorizontal: 40,
+    paddingVertical: 10,
+    width: "100%",
+    gap: 10,
+    marginTop: -17,
+    // borderWidth: 1,
   },
 });

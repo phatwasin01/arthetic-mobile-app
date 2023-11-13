@@ -26,24 +26,33 @@ export const GetUserProfile = graphql(
     query UserProfile {
       userProfile {
         username
-        image_url
+        imageUrl
         posts {
           id
           content
           imageUrl
         }
-        follows {
-          following {
-            username
-            image_url
-          }
+        following {
+          username
+          imageUrl
         }
         followers {
-          following {
-            username
-            image_url
-          }
+          username
+          imageUrl
         }
+      }
+    }
+  `
+);
+
+export const SearchUser = graphql(
+  /* GraphQL */
+  `
+    query SearchUsers($username: String!) {
+      searchUsers(username: $username) {
+        id
+        username
+        imageUrl
       }
     }
   `
@@ -55,23 +64,19 @@ export const GetUserProfileByUsername = graphql(
     query UserProfileByUsername($username: String!) {
       user(username: $username) {
         username
-        image_url
+        imageUrl
         posts {
           id
           content
           imageUrl
         }
-        follows {
-          following {
-            username
-            image_url
-          }
+        following {
+          username
+          imageUrl
         }
         followers {
-          following {
-            username
-            image_url
-          }
+          username
+          imageUrl
         }
       }
     }
@@ -84,9 +89,10 @@ export const GetUserFollowingFeed = graphql(
     query UserFollowingFeed {
       userProfile {
         followingFeed {
+          id
           author {
             username
-            image_url
+            imageUrl
           }
           imageUrl
           content
@@ -127,18 +133,34 @@ export const GetPost = graphql(
         id
         author {
           username
-          image_url
+          imageUrl
         }
         content
+        imageUrl
         likeCount
         repostCount
         comments {
           author {
             username
-            image_url
+            imageUrl
           }
           content
+          createdAt
         }
+        isUserLiked
+        isUserReposted
+        createdAt
+      }
+    }
+  `
+);
+export const GetPostGlobal = graphql(
+  /* GraphQL */
+  `
+    query DiscoverGlobalPosts {
+      discoverGlobalPosts {
+        id
+        imageUrl
         createdAt
       }
     }
@@ -216,7 +238,7 @@ export const CreateProduct = graphql(
         price
         owner {
           username
-          image_url
+          imageUrl
         }
         isSold
         createdAt
@@ -252,7 +274,7 @@ export const UpdateProductById = graphql(
         imageUrl
         owner {
           username
-          image_url
+          imageUrl
         }
         category {
           id
@@ -276,7 +298,7 @@ export const SoftDeleteProductById = graphql(
         imageUrl
         owner {
           username
-          image_url
+          imageUrl
         }
         category {
           id
@@ -302,7 +324,7 @@ export const DiscoveryGlobalProducts = graphql(
         imageUrl
         owner {
           username
-          image_url
+          imageUrl
         }
         category {
           id
@@ -327,7 +349,7 @@ export const GetProductById = graphql(
         imageUrl
         owner {
           username
-          image_url
+          imageUrl
         }
         category {
           id
@@ -365,7 +387,7 @@ export const GetProductByCategoryId = graphql(
         imageUrl
         owner {
           username
-          image_url
+          imageUrl
         }
         category {
           id

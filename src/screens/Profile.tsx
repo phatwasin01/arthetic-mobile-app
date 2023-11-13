@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
-import { deleteValueFromSecureStore, logoutNavigate } from "../utils/auth";
+import { deleteValueFromSecureStoreAndLogout } from "../utils/auth";
 import { Button } from "@rneui/base";
 import { StackNavigationProp } from "@react-navigation/stack";
 
@@ -17,8 +17,7 @@ const Profile = ({ navigation }: { navigation: StackNavigationProp<any> }) => {
     >
       <Button
         onPress={() => {
-          deleteValueFromSecureStore(userTokenKey);
-          logoutNavigate(navigation);
+          deleteValueFromSecureStoreAndLogout(userTokenKey, navigation);
         }}
       >
         <Text>Logout</Text>
