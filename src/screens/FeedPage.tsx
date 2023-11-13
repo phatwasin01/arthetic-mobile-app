@@ -4,18 +4,17 @@ import {
   Text,
   View,
   TouchableOpacity,
-  Image,
   RefreshControl,
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native";
 import { Avatar } from "@rneui/base";
-import Octicons from "@expo/vector-icons/Octicons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { ScrollView } from "react-native-gesture-handler";
 import AdBanner from "../components/carousel/Carousel";
 import Loading from "./Loading";
+import { Image } from "@rneui/base";
 
 import {
   GetUserFollowingFeed,

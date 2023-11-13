@@ -1,11 +1,10 @@
-import { Avatar, Skeleton } from "@rneui/base";
-import React, { useState, Suspense } from "react";
+import { Avatar } from "@rneui/base";
+import React, { useState } from "react";
 import {
   StyleSheet,
   Text,
   View,
   TouchableOpacity,
-  Image,
   TextInput,
   KeyboardAvoidingView,
   Platform,
@@ -28,6 +27,7 @@ import { TimestampToDate, FromNow } from "../../utils/post";
 import { ScrollView } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import Loading from "../../screens/Loading";
+import { Image } from "@rneui/base";
 
 export default function Post({
   route,
@@ -46,7 +46,6 @@ export default function Post({
   const [commentPost] = useMutation(CommentPost);
   const [commentText, setCommentText] = useState("");
   const [refreshing, setRefreshing] = useState(false);
-  const [isImageLoading, setIsImageLoading] = useState(true);
   const onRefresh = async () => {
     setRefreshing(true);
 
@@ -130,23 +129,11 @@ export default function Post({
             </View>
           </View>
           <View style={{ overflow: "hidden" }}>
-            {/* {isImageLoading && (
-              <Skeleton
-                height={280}
-                width={280}
-                style={{ borderRadius: 10, marginTop: 10 }}
-                animation="pulse"
-                skeletonStyle={{
-                  backgroundColor: "#E5E5E5",
-                }}
-              />
-            )} */}
             {data?.post?.imageUrl && (
               <Image
                 source={{
                   uri: data?.post?.imageUrl,
                 }}
-                onLoad={() => setIsImageLoading(false)}
                 style={{
                   width: 280,
                   height: 280,

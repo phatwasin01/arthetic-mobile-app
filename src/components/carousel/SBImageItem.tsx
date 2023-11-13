@@ -1,6 +1,6 @@
 import React, { Suspense } from "react";
 import type { StyleProp, ViewStyle, ImageURISource } from "react-native";
-import { StyleSheet, View, ActivityIndicator, Image, Text } from "react-native";
+import { StyleSheet, View, ActivityIndicator, Image } from "react-native";
 
 interface Props {
   style?: StyleProp<ViewStyle>;

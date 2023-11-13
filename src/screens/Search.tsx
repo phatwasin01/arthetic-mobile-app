@@ -5,55 +5,32 @@ import {
   StyleSheet,
   Dimensions,
   ScrollView,
-  Image,
-  RefreshControl,
   ActivityIndicator,
-  Touchable,
-  TouchableWithoutFeedback,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import { Avatar, SearchBar, Skeleton } from "@rneui/base";
+import { Avatar, SearchBar } from "@rneui/base";
 import { useQuery, useLazyQuery } from "@apollo/client";
 import { GetPostGlobal, SearchUser } from "../gql/document";
 import Loading from "./Loading";
 import { StackNavigationProp } from "@react-navigation/stack";
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
+import { Image } from "@rneui/base";
+
 export default function Search({
   navigation,
 }: {
   navigation: StackNavigationProp<any>;
 }) {
   const [searchValue, setSearchValue] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
   //mock data
   const { loading, error, data, refetch } = useQuery(GetPostGlobal);
   const [searchUser, { loading: searchUserLoading, data: searchUserData }] =
     useLazyQuery(SearchUser);
   const [refreshing, setRefreshing] = useState(false);
-  const [imageLoadingStatus, setImageLoadingStatus] = useState<
-    Record<string, "loading" | "loaded" | "error">
-  >({});
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [debounceTimeout, setDebounceTimeout] = useState<NodeJS.Timeout>();
-  useEffect(() => {
-    if (data && data.discoverGlobalPosts) {
-      // Initialize loading status for each image
-      const initialStatus: Record<string, "loading" | "loaded" | "error"> = {};
-      data.discoverGlobalPosts.forEach((post) => {
-        initialStatus[post.id] = "loading"; // Assuming each post has a unique 'id'
-      });
-      setImageLoadingStatus(initialStatus);
-    }
-  }, [data]);
 
-  const handleImageLoaded = (id: string) => {
-    setImageLoadingStatus((prev) => ({ ...prev, [id]: "loaded" }));
-  };
-
-  const handleImageError = (id: string) => {
-    setImageLoadingStatus((prev) => ({ ...prev, [id]: "error" }));
-  };
   const onRefresh = async () => {
     setRefreshing(true);
     await refetch();
@@ -89,7 +66,6 @@ export default function Search({
         }}
         placeholder="Search here..."
         placeholderTextColor="#888"
-        showLoading={isSearching}
         onPressIn={() => setIsSearchMode(true)}
         onCancel={() => setIsSearchMode(false)}
         value={searchValue}
@@ -139,24 +115,11 @@ export default function Search({
                 ...styles.gridItem,
               }}
             >
-              {imageLoadingStatus[item.id] === "loading" && (
-                <Skeleton
-                  height={windowWidth / 3 - 2}
-                  width={windowWidth / 3 - 2}
-                  animation="pulse"
-                  skeletonStyle={{
-                    backgroundColor: "#E5E5E5",
-                  }}
-                />
-              )}
-              <TouchableWithoutFeedback onPress={() => handleViewPost(item.id)}>
-                <Image
-                  style={{ width: "100%", height: "100%" }}
-                  source={{ uri: item.imageUrl || undefined }}
-                  onLoad={() => handleImageLoaded(item.id)}
-                  onError={() => handleImageError(item.id)}
-                />
-              </TouchableWithoutFeedback>
+              <Image
+                style={{ width: "100%", height: "100%" }}
+                source={{ uri: item.imageUrl || undefined }}
+                onPress={() => handleViewPost(item.id)}
+              />
             </View>
           ))}
         </View>

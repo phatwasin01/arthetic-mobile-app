@@ -8,13 +8,11 @@ import {
 
 import { FullMetadata } from "firebase/storage";
 
+import { firebaseConfig } from "./fireBaseCredential";
 interface UploadResult {
   downloadUrl: string;
   metadata: FullMetadata;
 }
-
-// Initialize Firebase
-const firebaseConfig = {};
 
 if (getApps().length === 0) {
   initializeApp(firebaseConfig);
