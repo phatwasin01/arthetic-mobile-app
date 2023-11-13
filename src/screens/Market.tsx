@@ -5,6 +5,7 @@ import {
   SafeAreaView,
   ScrollView,
   RefreshControl,
+  TouchableWithoutFeedback,
 } from "react-native";
 import React, { useState } from "react";
 import { StackNavigationProp } from "@react-navigation/stack";
@@ -14,6 +15,7 @@ import { useQuery } from "@apollo/client";
 import Loading from "./Loading";
 import { Avatar } from "@rneui/base";
 import { Image } from "@rneui/base";
+import { priceToString } from "../utils/product";
 
 export default function Market({
   navigation,
@@ -46,65 +48,69 @@ export default function Market({
       >
         <View style={styles.productsContainer}>
           {products?.discoverGlobalProducts?.map((product) => (
-            <View
-              style={[styles.productCard, styles.shadowProp]}
+            <TouchableWithoutFeedback
               key={product.id}
+              onPress={() => {
+                navigation.navigate("Product", { productId: product.id });
+              }}
             >
-              <View style={{ position: "relative" }}>
-                <Image
-                  style={styles.productImage}
-                  source={{ uri: product.imageUrl || undefined }}
-                />
-                <View
-                  style={{
-                    borderRadius: 5,
-                    backgroundColor: "#00B89C",
-                    opacity: 0.8,
-                    paddingHorizontal: 5,
-                    paddingVertical: 1,
-                    position: "absolute",
-                    bottom: 5,
-                    right: 5,
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Text
+              <View style={[styles.productCard, styles.shadowProp]}>
+                <View style={{ position: "relative" }}>
+                  <Image
+                    style={styles.productImage}
+                    source={{ uri: product.imageUrl || undefined }}
+                  />
+                  <View
                     style={{
-                      color: "white",
-                      fontWeight: "600",
-                      fontSize: 13,
+                      borderRadius: 5,
+                      backgroundColor: "#00B89C",
+                      opacity: 0.8,
+                      paddingHorizontal: 5,
+                      paddingVertical: 1,
+                      position: "absolute",
+                      bottom: 5,
+                      right: 5,
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}
                   >
-                    {product.price}฿
-                  </Text>
+                    <Text
+                      style={{
+                        color: "white",
+                        fontWeight: "600",
+                        fontSize: 13,
+                      }}
+                    >
+                      {priceToString(product?.price)}฿
+                    </Text>
+                  </View>
                 </View>
-              </View>
 
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  gap: 10,
-                  marginTop: 10,
-                }}
-              >
-                <Avatar
-                  rounded
-                  size={32}
-                  source={{
-                    uri: product?.owner?.imageUrl || undefined,
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 10,
+                    marginTop: 10,
                   }}
-                  onPress={() => console.log("Works!")}
-                />
-                <View>
-                  <Text style={{ fontSize: 14 }}>{product?.name}</Text>
-                  <Text style={{ fontSize: 12, fontWeight: "300" }}>
-                    @{product?.owner?.username}
-                  </Text>
+                >
+                  <Avatar
+                    rounded
+                    size={32}
+                    source={{
+                      uri: product?.owner?.imageUrl || undefined,
+                    }}
+                    onPress={() => console.log("Works!")}
+                  />
+                  <View>
+                    <Text style={{ fontSize: 14 }}>{product?.name}</Text>
+                    <Text style={{ fontSize: 12, fontWeight: "300" }}>
+                      @{product?.owner?.username}
+                    </Text>
+                  </View>
                 </View>
               </View>
-            </View>
+            </TouchableWithoutFeedback>
           ))}
         </View>
       </ScrollView>

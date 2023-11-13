@@ -26,7 +26,7 @@ import { useMutation, useQuery } from "@apollo/client";
 
 import { deleteValueFromSecureStoreAndLogout } from "../utils/auth";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { FromNow, TimestampToDate } from "../utils/post";
+import { FromNow } from "../utils/post";
 const userTokenKey = "userToken";
 
 const HeaderMain = ({

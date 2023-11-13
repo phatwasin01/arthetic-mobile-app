@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "arthetic-mobile-app",
-    "slug": "arthetic-mobile-app",
+    "slug": "arthetic",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -15,13 +15,18 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.phatwasin01.arthetic"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.phatwasin01.arthetic"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -34,6 +39,18 @@
           "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera"
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "cf9df929-b421-4820-8d70-137560a58268"
+      }
+    },
+    "owner": "phatwasin01",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/cf9df929-b421-4820-8d70-137560a58268"
+    }
   }
 }

@@ -22,13 +22,12 @@ import {
 } from "../../gql/document";
 import { useQuery, useMutation } from "@apollo/client";
 import { SafeAreaView } from "react-native-safe-area-context";
-import AntDesign from "@expo/vector-icons/AntDesign";
 import { TimestampToDate, FromNow } from "../../utils/post";
 import { ScrollView } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import Loading from "../../screens/Loading";
 import { Image } from "@rneui/base";
-
+import { HeaderGoback } from "../navigation/HeaderGoback";
 export default function Post({
   route,
   navigation,
@@ -103,10 +102,8 @@ export default function Post({
   if (error) return <Text>Error</Text>;
   if (!data) return <Text>No Data</Text>;
   return (
-    <SafeAreaView
-      style={{ backgroundColor: "white", flex: 1, marginBottom: -25 }}
-    >
-      <HeaderMain navigation={navigation} />
+    <SafeAreaView style={{ backgroundColor: "white", flex: 1 }}>
+      <HeaderGoback navigation={navigation} />
       <ScrollView
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -225,20 +222,6 @@ export default function Post({
     </SafeAreaView>
   );
 }
-const HeaderMain = ({
-  navigation,
-}: {
-  navigation: StackNavigationProp<any>;
-}) => (
-  <View style={styles.headerContainer}>
-    <AntDesign
-      name="arrowleft"
-      size={24}
-      color="black"
-      onPress={() => navigation.goBack()}
-    />
-  </View>
-);
 const PostComment = ({
   caption,
   username,
@@ -273,7 +256,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#2D2D2D",
     paddingHorizontal: 15,
     paddingVertical: 10,
-    borderRadius: 20,
+    borderRadius: 10,
     textAlign: "center",
   },
   commentInput: {
@@ -284,6 +267,7 @@ const styles = StyleSheet.create({
     borderBottomColor: "#E5E5E5",
     fontSize: 14,
     backgroundColor: "#E5E5E5",
+    borderRadius: 10,
   },
   commentHeader: {
     display: "flex",

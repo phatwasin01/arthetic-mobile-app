@@ -52,13 +52,6 @@ export default function PostPage() {
       <SafeAreaView style={styles.container}>
         <HeaderMain />
         <ScrollView style={{ width: "100%" }}>
-          {/* <Post
-            key={0}
-            caption={"Hello"}
-            username={"Angel"}
-            isUserLiked={true}
-            isUserRePosted={false}
-          /> */}
           <PostComment
             key={1}
             caption={"Hello2"}
