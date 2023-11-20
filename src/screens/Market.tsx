@@ -16,6 +16,7 @@ import Loading from "./Loading";
 import { Avatar } from "@rneui/base";
 import { Image } from "@rneui/base";
 import { priceToString } from "../utils/product";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 export default function Market({
   navigation,
@@ -133,6 +134,12 @@ const HeaderMain = ({
         size={28}
         color="black"
         onPress={() => navigation.navigate("CreateArt")}
+      />
+      <FontAwesome
+        name="history"
+        size={28}
+        color="black"
+        onPress={() => navigation.navigate("MyProducts")}
       />
     </View>
   </View>

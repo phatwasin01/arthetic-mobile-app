@@ -8,6 +8,7 @@ import { useQuery } from "@apollo/client";
 import Loading from "./Loading";
 import { Dimensions } from "react-native";
 import { priceToString } from "../utils/product";
+import { navigateToUserProfile } from "../utils/user";
 const windowWidth = Dimensions.get("window").width * 0.9;
 export default function Product({
   route,
@@ -17,7 +18,7 @@ export default function Product({
   navigation: StackNavigationProp<any>;
 }) {
   const { productId } = route.params;
-  const { data, loading, error, refetch } = useQuery(GetProductById, {
+  const { data, loading, error } = useQuery(GetProductById, {
     variables: { productId },
   });
   if (loading) return <Loading />;
@@ -138,7 +139,14 @@ export default function Product({
               source={{
                 uri: data.product?.owner?.imageUrl || undefined,
               }}
-              onPress={() => console.log("Works!")}
+              onPress={() => {
+                if (data.product?.owner?.username) {
+                  navigateToUserProfile({
+                    navigation,
+                    username: data.product?.owner?.username,
+                  });
+                }
+              }}
             />
             <View>
               <Text style={{ fontSize: 18, fontWeight: "400" }}>

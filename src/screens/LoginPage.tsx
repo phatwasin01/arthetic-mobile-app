@@ -12,6 +12,7 @@ import {
   Image,
   Text,
   StyleSheet,
+  ActivityIndicator,
 } from "react-native";
 import { Login } from "../gql/document";
 import { SafeAreaView } from "react-native";
@@ -30,7 +31,7 @@ export default function LoginPage({
 }: {
   navigation: StackNavigationProp<any>;
 }) {
-  const [login, { data }] = useMutation(Login);
+  const [login, { loading: loginLoading }] = useMutation(Login);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const handleLogin = async () => {
@@ -49,7 +50,7 @@ export default function LoginPage({
         response.data.login &&
         response.data.login.token
       ) {
-        // Save the token to AsyncStorage
+        // Save the token to SecureStorage
         await saveToSecureStore(userTokenKey, response.data.login.token);
         console.log("Login successful");
         // const token = await getValueFromSecureStore(userTokenKey);
@@ -98,17 +99,20 @@ export default function LoginPage({
               </View>
             </View>
             <View style={styles.container2}>
-              <TouchableOpacity style={styles.button1} onPress={handleLogin}>
+              <TouchableOpacity
+                style={styles.button1}
+                onPress={handleLogin}
+                disabled={loginLoading}
+              >
                 <Text style={styles.buttonText1}>Login</Text>
+                {loginLoading && <ActivityIndicator />}
               </TouchableOpacity>
-              <View style={styles.orDivider}>
-                <View style={styles.divider} />
-                <Text style={styles.orText}>or</Text>
-                <View style={styles.divider} />
+              <View style={styles.buttonnobutton}>
+                <Text style={styles.buttonText2}>Don't have an account?</Text>
+                <TouchableOpacity onPress={() => navigation.navigate("Signup")}>
+                  <Text style={styles.buttonText3}>Signup</Text>
+                </TouchableOpacity>
               </View>
-              <TouchableOpacity style={styles.button2}>
-                <Text style={styles.buttonText2}>Signup</Text>
-              </TouchableOpacity>
             </View>
             <StatusBar style="auto" />
           </View>
@@ -166,6 +170,7 @@ const styles = StyleSheet.create({
     width: 276,
     height: 44,
     display: "flex",
+    flexDirection: "row",
     paddingVertical: 10,
     justifyContent: "center",
     alignItems: "center",
@@ -185,6 +190,13 @@ const styles = StyleSheet.create({
     borderRadius: 33,
     fontSize: 14,
   },
+  buttonnobutton: {
+    display: "flex",
+    flexDirection: "row",
+    fontSize: 14,
+    gap: 5,
+    paddingTop: 15,
+  },
   logo: {
     height: 180,
     width: 183,
@@ -196,6 +208,11 @@ const styles = StyleSheet.create({
 
   buttonText2: {
     color: "#2d2d2d",
+  },
+
+  buttonText3: {
+    color: "#ff473e",
+    textDecorationLine: "underline",
   },
 
   orDivider: {

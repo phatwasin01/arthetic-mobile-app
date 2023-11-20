@@ -8,39 +8,40 @@ import {
   RefreshControl,
 } from "react-native";
 import React, { useState } from "react";
-import { deleteValueFromSecureStore, logoutNavigate } from "../utils/auth";
 import { Avatar } from "@rneui/base";
 import { StackNavigationProp } from "@react-navigation/stack";
-import Octicons from "@expo/vector-icons/Octicons";
-import AntDesign from "@expo/vector-icons/AntDesign";
 import { TouchableOpacity } from "react-native";
-import { GetUserProfile } from "../gql/document";
-import { useQuery } from "@apollo/client";
+import {
+  GetUserProfileByUsername,
+  FollowUser,
+  UnfollowUser,
+} from "../gql/document";
+import { useQuery, useMutation } from "@apollo/client";
 import Loading from "./Loading";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { FromNow } from "../utils/post";
-const userTokenKey = "userToken";
+import { HeaderGoback } from "../components/navigation/HeaderGoback";
 
-const HeaderMain = () => (
-  <View style={styles.headerContainer}>
-    <View style={styles.headerLeft}>
-      <Image style={styles.logo} source={require("../../assets/logo.png")} />
-      <Text style={styles.headerText}>Arthetic</Text>
-    </View>
-    {/* <View style={styles.headerRight}>
-      <Octicons name="paintbrush" size={24} color="black" />
-      <AntDesign name="setting" size={24} color="black" />
-    </View> */}
-  </View>
-);
-
-const Profile = ({ navigation }: { navigation: StackNavigationProp<any> }) => {
+const Profile = ({
+  navigation,
+  route,
+}: {
+  navigation: StackNavigationProp<any>;
+  route: any;
+}) => {
+  const { username } = route.params;
   const {
     data,
     loading,
     error,
     refetch: refetchProfile,
-  } = useQuery(GetUserProfile);
+  } = useQuery(GetUserProfileByUsername, {
+    variables: {
+      username,
+    },
+  });
+  const [followUser] = useMutation(FollowUser);
+  const [unfollowUser] = useMutation(UnfollowUser);
   const [refreshing, setRefreshing] = useState(false);
   const onRefresh = async () => {
     setRefreshing(true);
@@ -48,6 +49,22 @@ const Profile = ({ navigation }: { navigation: StackNavigationProp<any> }) => {
     await refetchProfile();
 
     setRefreshing(false);
+  };
+  const handleFollow = async () => {
+    if (data?.user?.isFollowing === false) {
+      await followUser({
+        variables: { username },
+      });
+    }
+    await refetchProfile();
+  };
+  const handleUnfollow = async () => {
+    if (data?.user?.isFollowing === true) {
+      await unfollowUser({
+        variables: { username },
+      });
+    }
+    await refetchProfile();
   };
   const navigateToPost = (postId: string | undefined) => {
     if (!postId) return;
@@ -62,7 +79,7 @@ const Profile = ({ navigation }: { navigation: StackNavigationProp<any> }) => {
   return (
     <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
       <SafeAreaView style={styles.container}>
-        <HeaderMain />
+        <HeaderGoback navigation={navigation} />
         <ScrollView
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -72,51 +89,50 @@ const Profile = ({ navigation }: { navigation: StackNavigationProp<any> }) => {
             <Avatar
               rounded
               size="large"
-              source={{ uri: data?.userProfile?.imageUrl || undefined }}
+              source={{ uri: data?.user?.imageUrl || undefined }}
             />
             <View style={styles.detailContainer}>
               <Text style={{ fontWeight: "bold", fontSize: 18 }}>
-                {data?.userProfile?.posts?.length}
+                {data?.user?.posts?.length}
               </Text>
               <Text>Posts</Text>
             </View>
             <View style={styles.detailContainer}>
               <Text style={{ fontWeight: "bold", fontSize: 18 }}>
-                {data?.userProfile?.followers?.length}
+                {data?.user?.followers?.length}
               </Text>
               <Text>Follower</Text>
             </View>
             <View style={styles.detailContainer}>
               <Text style={{ fontWeight: "bold", fontSize: 18 }}>
-                {data?.userProfile?.following?.length}
+                {data?.user?.following?.length}
               </Text>
               <Text>Following</Text>
             </View>
           </View>
           <View style={styles.bioContainer}>
-            <Text style={{ fontSize: 18 }}>{data?.userProfile?.username}</Text>
-            {/* <Text> SIIT29 | Digital Engineering </Text> */}
+            <Text style={{ fontSize: 18 }}>{data?.user?.username}</Text>
           </View>
           <View style={styles.buttoncontainer}>
-            {/* <TouchableOpacity style={styles.profButton}>
-              <Text style={styles.profBTfont}>Follow</Text>
-            </TouchableOpacity> */}
-            {/* <TouchableOpacity style={styles.profButton}>
-            <Text style={styles.profBTfont}>Message</Text>
-          </TouchableOpacity> */}
-            <TouchableOpacity
-              style={styles.profButton}
-              onPress={() => {
-                deleteValueFromSecureStore(userTokenKey);
-                logoutNavigate(navigation);
-              }}
-            >
-              <Text style={styles.profBTfont}>Logout</Text>
-            </TouchableOpacity>
+            {data?.user?.isFollowing && (
+              <TouchableOpacity
+                style={styles.profButton}
+                onPress={handleUnfollow}
+              >
+                <Text style={styles.profBTfont}>Following</Text>
+              </TouchableOpacity>
+            )}
+            {!data?.user?.isFollowing && (
+              <TouchableOpacity
+                style={styles.profButton}
+                onPress={handleFollow}
+              >
+                <Text style={styles.profBTfont}>Follow</Text>
+              </TouchableOpacity>
+            )}
           </View>
           <View style={styles.underline} />
-          {data?.userProfile?.posts?.map((post, index) => (
-            // <Text>{post?.content}</Text>
+          {data?.user?.posts?.map((post, index) => (
             <TouchableOpacity
               style={styles.postOverall}
               key={index}
@@ -127,7 +143,7 @@ const Profile = ({ navigation }: { navigation: StackNavigationProp<any> }) => {
                 <View style={styles.repostHeader}>
                   <FontAwesome name="retweet" size={18} color="#B1B1B1" />
                   <Text style={{ color: "#B1B1B1", fontWeight: "600" }}>
-                    You reposted
+                    {post?.repostUser?.username} reposted
                   </Text>
                 </View>
               )}
@@ -227,7 +243,7 @@ const styles = StyleSheet.create({
   },
   profBTfont: {
     color: "#2d2d2d",
-    fontSize: 12,
+    fontSize: 14,
   },
   buttoncontainer: {
     width: "100%",

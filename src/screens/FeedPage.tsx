@@ -27,6 +27,7 @@ import { useMutation, useQuery } from "@apollo/client";
 import { deleteValueFromSecureStoreAndLogout } from "../utils/auth";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { FromNow } from "../utils/post";
+import { navigateToUserProfile } from "../utils/user";
 const userTokenKey = "userToken";
 
 const HeaderMain = ({
@@ -146,12 +147,22 @@ export default function HomePage({
               onPress={() => navigateToPost(post?.id)}
             >
               {post?.postType === "Repost" && (
-                <View style={styles.repostHeader}>
+                <TouchableOpacity
+                  style={styles.repostHeader}
+                  onPress={() => {
+                    if (post?.repostUser?.username) {
+                      navigateToUserProfile({
+                        navigation,
+                        username: post?.repostUser?.username,
+                      });
+                    }
+                  }}
+                >
                   <FontAwesome name="retweet" size={18} color="#B1B1B1" />
                   <Text style={{ color: "#B1B1B1", fontWeight: "600" }}>
                     {post.repostUser?.username} reposted
                   </Text>
-                </View>
+                </TouchableOpacity>
               )}
               <View style={styles.postHeader}>
                 <Avatar
@@ -160,7 +171,14 @@ export default function HomePage({
                   source={{
                     uri: post?.author?.imageUrl || undefined,
                   }}
-                  onPress={() => console.log("Works!")}
+                  onPress={() => {
+                    if (post?.author?.username) {
+                      navigateToUserProfile({
+                        navigation,
+                        username: post?.author?.username,
+                      });
+                    }
+                  }}
                 />
                 <View style={styles.postCaption}>
                   <View

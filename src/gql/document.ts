@@ -19,18 +19,58 @@ export const Login = graphql(
     }
   `
 );
-
+export const CreateUser = graphql(
+  /* GraphQL */
+  `
+    mutation CreateUser(
+      $username: String!
+      $password: String!
+      $fname: String!
+      $lname: String!
+      $imageUrl: String
+    ) {
+      createUser(
+        username: $username
+        password: $password
+        fname: $fname
+        lname: $lname
+        imageUrl: $imageUrl
+      ) {
+        id
+        username
+        imageUrl
+        fname
+        lname
+      }
+    }
+  `
+);
 export const GetUserProfile = graphql(
   /* GraphQL */
   `
     query UserProfile {
       userProfile {
+        id
         username
         imageUrl
         posts {
           id
-          content
+          author {
+            username
+            imageUrl
+          }
           imageUrl
+          content
+          postType
+          repostUser {
+            username
+          }
+          likeCount
+          repostCount
+          commentCount
+          isUserLiked
+          isUserReposted
+          timestamp
         }
         following {
           username
@@ -63,12 +103,28 @@ export const GetUserProfileByUsername = graphql(
   `
     query UserProfileByUsername($username: String!) {
       user(username: $username) {
+        id
         username
         imageUrl
+        isFollowing
         posts {
           id
-          content
+          author {
+            username
+            imageUrl
+          }
           imageUrl
+          content
+          postType
+          repostUser {
+            username
+          }
+          likeCount
+          repostCount
+          commentCount
+          isUserLiked
+          isUserReposted
+          timestamp
         }
         following {
           username
@@ -83,11 +139,34 @@ export const GetUserProfileByUsername = graphql(
   `
 );
 
+export const FollowUser = graphql(
+  /* GraphQL */
+  `
+    mutation Follow($username: ID!) {
+      follow(username: $username) {
+        success
+      }
+    }
+  `
+);
+
+export const UnfollowUser = graphql(
+  /* GraphQL */
+  `
+    mutation Unfollow($username: ID!) {
+      unfollow(username: $username) {
+        success
+      }
+    }
+  `
+);
+
 export const GetUserFollowingFeed = graphql(
   /* GraphQL */
   `
     query UserFollowingFeed {
       userProfile {
+        id
         followingFeed {
           id
           author {
@@ -293,20 +372,18 @@ export const SoftDeleteProductById = graphql(
     mutation SoftDeleteProductById($deleteProductId: ID!) {
       deleteProduct(id: $deleteProductId) {
         id
-        name
-        price
-        imageUrl
-        owner {
-          username
-          imageUrl
-        }
-        category {
-          id
-          name
-        }
-        isSold
-        description
-        createdAt
+        isDeleted
+      }
+    }
+  `
+);
+
+export const UnDeleteProductById = graphql(
+  /* GraphQL */
+  `
+    mutation UnDeleteProductById($unDeleteProductId: ID!) {
+      unDeleteProduct(id: $unDeleteProductId) {
+        id
         isDeleted
       }
     }
@@ -331,6 +408,28 @@ export const DiscoveryGlobalProducts = graphql(
           name
         }
         isSold
+        description
+        createdAt
+      }
+    }
+  `
+);
+
+export const GetMyProducts = graphql(
+  /* GraphQL */
+  `
+    query MyProducts {
+      myProducts {
+        id
+        name
+        price
+        imageUrl
+        category {
+          id
+          name
+        }
+        isSold
+        isDeleted
         description
         createdAt
       }

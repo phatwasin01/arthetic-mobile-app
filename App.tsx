@@ -5,9 +5,10 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
-import LoginPage from "./src/screens/LoginPage";
+// import LoginPage from "./src/screens/LoginPage";
+import Auth from "./src/navigation/Auth";
 import Splash from "./src/screens/Splash";
-import Profile from "./src/screens/Profile";
+import Profile from "./src/navigation/Profile";
 import HomePage from "./src/navigation/Home";
 import SearchPage from "./src/navigation/Search";
 import Market from "./src/navigation/Market";
@@ -66,9 +67,9 @@ export default function App() {
           screenOptions={{
             headerShown: false,
           }}
-          initialRouteName={isAuthenticated === true ? "MainTabs" : "Login"}
+          initialRouteName={isAuthenticated === true ? "MainTabs" : "Auth"}
         >
-          <Stack.Screen name="Login" component={LoginPage} />
+          <Stack.Screen name="Auth" component={Auth} />
           <Stack.Screen name="MainTabs" component={MainTabs} />
         </Stack.Navigator>
         <StatusBar hidden={false} />
@@ -126,7 +127,7 @@ function MainTabs() {
             ),
           }}
         />
-        <Tab.Screen
+        {/* <Tab.Screen
           name="Notification"
           component={HomePage}
           options={{
@@ -138,7 +139,7 @@ function MainTabs() {
               />
             ),
           }}
-        />
+        /> */}
         <Tab.Screen
           name="Profile"
           component={Profile}

@@ -6,6 +6,7 @@ import {
   Dimensions,
   ScrollView,
   ActivityIndicator,
+  TouchableOpacity,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Avatar, SearchBar } from "@rneui/base";
@@ -14,9 +15,8 @@ import { GetPostGlobal, SearchUser } from "../gql/document";
 import Loading from "./Loading";
 import { StackNavigationProp } from "@react-navigation/stack";
 const windowWidth = Dimensions.get("window").width;
-const windowHeight = Dimensions.get("window").height;
 import { Image } from "@rneui/base";
-
+import { navigateToUserProfile } from "../utils/user";
 export default function Search({
   navigation,
 }: {
@@ -92,7 +92,16 @@ export default function Search({
           </Text>
           <View style={styles.userSearchContainer}>
             {searchUserData?.searchUsers.map((user) => (
-              <View style={styles.userSearchItem} key={user.id}>
+              <TouchableOpacity
+                style={styles.userSearchItem}
+                key={user.id}
+                onPress={() => {
+                  navigateToUserProfile({
+                    navigation,
+                    username: user.username,
+                  });
+                }}
+              >
                 <Avatar
                   rounded
                   source={{ uri: user.imageUrl || undefined }}
@@ -101,7 +110,7 @@ export default function Search({
                 <Text style={{ fontWeight: "500", fontSize: 14 }}>
                   {user.username}
                 </Text>
-              </View>
+              </TouchableOpacity>
             ))}
             {searchUserLoading && <ActivityIndicator size="small" />}
           </View>

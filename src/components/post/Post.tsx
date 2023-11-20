@@ -28,6 +28,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import Loading from "../../screens/Loading";
 import { Image } from "@rneui/base";
 import { HeaderGoback } from "../navigation/HeaderGoback";
+import { navigateToUserProfile } from "../../utils/user";
 export default function Post({
   route,
   navigation,
@@ -117,6 +118,14 @@ export default function Post({
               source={{
                 uri: data?.post?.author?.imageUrl || undefined,
               }}
+              onPress={() => {
+                if (data?.post?.author?.username) {
+                  navigateToUserProfile({
+                    navigation,
+                    username: data.post?.author?.username,
+                  });
+                }
+              }}
             />
             <View style={styles.postCaption}>
               <Text style={styles.boldText}>
@@ -179,6 +188,7 @@ export default function Post({
             caption={comment?.content || ""}
             username={comment?.author?.username || ""}
             createdAt={comment?.createdAt || ""}
+            navigation={navigation}
           />
         ))}
       </ScrollView>
@@ -226,10 +236,12 @@ const PostComment = ({
   caption,
   username,
   createdAt,
+  navigation,
 }: {
   caption: string;
   username: string;
   createdAt: string;
+  navigation: StackNavigationProp<any>;
 }) => (
   <View style={styles.CommentOverall}>
     <View style={styles.postHeader}>
@@ -238,6 +250,14 @@ const PostComment = ({
         size={37}
         source={{
           uri: "https://s3.amazonaws.com/uifaces/faces/twitter/ladylexy/128.jpg",
+        }}
+        onPress={() => {
+          if (username) {
+            navigateToUserProfile({
+              navigation,
+              username: username,
+            });
+          }
         }}
       />
       <View style={styles.postCaption}>
