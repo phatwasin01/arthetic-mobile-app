@@ -189,6 +189,7 @@ export default function Post({
             username={comment?.author?.username || ""}
             createdAt={comment?.createdAt || ""}
             navigation={navigation}
+            imageUrl={comment?.author?.imageUrl || undefined}
           />
         ))}
       </ScrollView>
@@ -237,11 +238,13 @@ const PostComment = ({
   username,
   createdAt,
   navigation,
+  imageUrl,
 }: {
   caption: string;
   username: string;
   createdAt: string;
   navigation: StackNavigationProp<any>;
+  imageUrl?: string;
 }) => (
   <View style={styles.CommentOverall}>
     <View style={styles.postHeader}>
@@ -249,7 +252,7 @@ const PostComment = ({
         rounded
         size={37}
         source={{
-          uri: "https://s3.amazonaws.com/uifaces/faces/twitter/ladylexy/128.jpg",
+          uri: imageUrl || undefined,
         }}
         onPress={() => {
           if (username) {

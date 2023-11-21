@@ -27,10 +27,6 @@ const HeaderMain = () => (
       <Image style={styles.logo} source={require("../../assets/logo.png")} />
       <Text style={styles.headerText}>Arthetic</Text>
     </View>
-    {/* <View style={styles.headerRight}>
-      <Octicons name="paintbrush" size={24} color="black" />
-      <AntDesign name="setting" size={24} color="black" />
-    </View> */}
   </View>
 );
 

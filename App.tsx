@@ -23,6 +23,7 @@ import { createHttpLink } from "@apollo/client";
 
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import axios from "axios";
 const userTokenKey = "userToken";
 const httpLink = createHttpLink({
   uri: "https://www.arthetic.live/graphql",
@@ -51,12 +52,30 @@ export default function App() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      // deleteValueFromSecureStore(userTokenKey);
-      const token = await getValueFromSecureStore(userTokenKey);
-      console.log("Secure Store Token: ", token);
-      setIsAuthenticated(!!token); // Set true if token exists, false otherwise
-    };
+      try {
+        const token = await getValueFromSecureStore(userTokenKey);
 
+        if (token) {
+          const response = await axios.get(
+            "https://www.arthetic.live/check-auth",
+            {
+              headers: { Authorization: token },
+            }
+          );
+
+          if (response.status === 200) {
+            setIsAuthenticated(true);
+          } else {
+            setIsAuthenticated(false);
+            await deleteValueFromSecureStore(userTokenKey);
+          }
+        } else {
+          setIsAuthenticated(false);
+        }
+      } catch (error) {
+        setIsAuthenticated(false);
+      }
+    };
     checkAuth();
   }, []);
   if (isAuthenticated === undefined) return <Splash />; // Or some other loading indicator (spinner, etc
